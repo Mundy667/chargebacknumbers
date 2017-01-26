@@ -28,33 +28,33 @@ $quotaReport = Get-NcQuotaReport | Select-Object Volume,QuotaTarget,Qtree
 $cifsShareInfo = Get-NcCifsShare | Select-Object ShareName, Path, Comment
 
 #Zusammenbau Report aus Quota, QuotaRePort und CIFS-shares
-$myCol = @()
+$expQuotaData = @()
 $i= 0
 foreach($entryQR in $quotaReport){
 $i++
 	Write-Host
 	Write-Host Processing Entry $i   
 	Write-Host 
-	$fullReport = "" | Select-Object Volume,QuotaTarget,Qtree,DiskLimit,CifsShare,ShareDescription
+	$fullQuotaReport = "" | Select-Object Volume,QuotaTarget,Qtree,DiskLimit,CifsShare,ShareDescription
 
-	$fullReport.Volume = $entryQR.Volume
-	$fullReport.QuotaTarget = $entryQR.QuotaTarget
-	$fullReport.Qtree = $entryQR.Qtree
+	$fullQuotaReport.Volume = $entryQR.Volume
+	$fullQuotaReport.QuotaTarget = $entryQR.QuotaTarget
+	$fullQuotaReport.Qtree = $entryQR.Qtree
 	
     #Im Get-NcQuotaReport haben wir alle Angaben ausser DiskLimit. DiskLimit steht in Get-NcQuota
 	$DiskLimitbyQuotaTarget =  $quotainfo | Select-Object QuotaTarget,DiskLimit |	where {$_.QuotaTarget -eq $entryQR.QuotaTarget}
-	$fullReport.DiskLimit = $DiskLimitbyQuotaTarget.DiskLimit
+	$fullQuotaReport.DiskLimit = $DiskLimitbyQuotaTarget.DiskLimit
 
 	#Zu jedem QuotaTarget die zugehörigen CIFS Shares und Comments
 	#PfadNamen des Cifs-Shares bauen, da Quotatarget noch ein "/vol" davor hat
 	$pathName = "/" + $entryQR.QuotaTarget.TrimStart("/vol")
 	$ShareInfosByPath = $cifsShareInfo | Select-Object ShareName, Path, Comment | where {$_.Path -eq $pathName}
-	$fullReport.CifsShare = $ShareInfosByPath.ShareName
+	$fullQuotaReport.CifsShare = $ShareInfosByPath.ShareName
 	
-$myCol += $fullReport
+$expQuotaData += $fullQuotaReport
 	}
 #Write-Host Writing CSV  
-$myCol | Export-Csv -NoTypeInformation -Delimiter ";"  $ExpFileQuota
+$expQuotaData | Export-Csv -NoTypeInformation -Delimiter ";"  $ExpFileQuota
 ##### End CIFS Quota auslesen
 
 ##### Begin LUN Size auslesen
@@ -64,6 +64,10 @@ $lunReport = Get-NcLun | Select-Object Path, Size
 $lunIgroups = Get-NcLunMap | Select-Object Path, InitiatorGroup
 #Initiators ermitteln
 $lunInitiator = Get-NcIgroup | Select-Object Name, Initiators
+
+$expLunData = @()
+
+
 
 ##### End CIFS Quota auselsen
 
