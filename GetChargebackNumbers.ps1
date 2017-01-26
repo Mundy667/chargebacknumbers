@@ -19,6 +19,7 @@ $Cluster="dot9sim"
 #Mit Cluster verbinden - Credential manuell
 Connect-NcController $Cluster
 
+#####Begin CIFS Quota auslesen 
 #Alle Quotas auslesen - leider werden hier keine Qtrees mitgegeben
 $quotaInfo = Get-NcQuota -Type tree | Select-Object Volume,QuotaTarget,Qtree,DiskLimit
 #Im quotaReport stehen die qtrees aber keine Limits
@@ -54,3 +55,15 @@ $myCol += $fullReport
 	}
 #Write-Host Writing CSV  
 $myCol | Export-Csv -NoTypeInformation -Delimiter ";"  $ExpFileQuota
+##### End CIFS Quota auslesen
+
+##### Begin LUN Size auslesen
+#Luns werden mit Vollständigem Pfadnamen gespeichert.
+$lunReport = Get-NcLun | Select-Object Path, Size
+#Lun Igroups ermitteln
+$lunIgroups = Get-NcLunMap | Select-Object Path, InitiatorGroup
+#Initiators ermitteln
+$lunInitiator = Get-NcIgroup | Select-Object Name, Initiators
+
+##### End CIFS Quota auselsen
+
