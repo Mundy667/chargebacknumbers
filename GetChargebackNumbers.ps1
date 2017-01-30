@@ -17,7 +17,7 @@ $Cluster="dot9sim"
 
 
 #Mit Cluster verbinden - Credential manuell
-Connect-NcController $Cluster
+#Connect-NcController $Cluster
 
 #####Begin CIFS Quota auslesen 
 #Alle Quotas auslesen - leider werden hier keine Qtrees mitgegeben
@@ -67,7 +67,26 @@ $lunIgroups = Get-NcLunMap | Select-Object Path, InitiatorGroup
 #Initiators ermitteln
 $lunInitiator = Get-NcIgroup | Select-Object Name, Initiators
 
-
-
+#Zusammenbau Report aus Lun, Maps und igroups
+$expSANData = @()
+$i= 0
+foreach($entryLun in $lunReport){
+	$i++
+	Write-Host
+	Write-Host Processing Entry $i $entryLun.Path
+	Write-Host
+	$fullSANreport = "" | Select-Object Path,Size,InitiatorGroup,Initiators
+	
+	$fullSANreport.Path = $entryLun.Path
+	$fullSANreport.Size = $entryLun.Size
+	#Anhand des Pfades die entsprechende Initiatorgroup suchen
+	$InitiatorGroupByPath = $lunIgroups | Select-Object Path, InitiatorGroup | where {$_.Path -eq $entryLun.path}
+	$fullSANreport.InitiatorGroup =  $InitiatorGroupByPath.InitiatorGroup
+	Write-Host fullSANreport.InitiatorGroup $fullSANreport.InitiatorGroup
+	$InitiatorsByIgroup = $lunInitiator | Select-Object Name, Initiators | where {$_.Name -eq $InitiatorGroupByPath.InitiatorGroup}
+	$fullSANreport.Initiators = $InitiatorsByIgroup.Name
+	Write-Host InitiatorsByIgroup.Name $InitiatorsByIgroup.Name 
+	$expSANData += $fullSANreport 
+	}
 ##### End CIFS Quota auslesen
-
+Write-Host End
