@@ -48,8 +48,10 @@ $i++
 	#Zu jedem QuotaTarget die zugehörigen CIFS Shares und Comments
 	#PfadNamen des Cifs-Shares bauen, da Quotatarget noch ein "/vol" davor hat
 	$pathName = "/" + $entryQR.QuotaTarget.TrimStart("/vol")
+	Write-Host $pathName
 	$ShareInfosByPath = $cifsShareInfo | Select-Object ShareName, Path, Comment | where {$_.Path -eq $pathName}
 	$fullQuotaReport.CifsShare = $ShareInfosByPath.ShareName
+	$fullQuotaReport.ShareDescription = $ShareInfosByPath.Comment
 	
 $expQuotaData += $fullQuotaReport
 	}
@@ -65,9 +67,7 @@ $lunIgroups = Get-NcLunMap | Select-Object Path, InitiatorGroup
 #Initiators ermitteln
 $lunInitiator = Get-NcIgroup | Select-Object Name, Initiators
 
-$expLunData = @()
 
 
-
-##### End CIFS Quota auselsen
+##### End CIFS Quota auslesen
 
