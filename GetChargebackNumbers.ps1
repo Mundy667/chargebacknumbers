@@ -78,15 +78,25 @@ foreach($entryLun in $lunReport){
 	$fullSANreport = "" | Select-Object Path,Size,InitiatorGroup,Initiators
 	
 	$fullSANreport.Path = $entryLun.Path
-	$fullSANreport.Size = $entryLun.Size
+	$fullSANreport.Size = $entryLun.Size 
 	#Anhand des Pfades die entsprechende Initiatorgroup suchen
 	$InitiatorGroupByPath = $lunIgroups | Select-Object Path, InitiatorGroup | where {$_.Path -eq $entryLun.path}
 	$fullSANreport.InitiatorGroup =  $InitiatorGroupByPath.InitiatorGroup
 	Write-Host fullSANreport.InitiatorGroup $fullSANreport.InitiatorGroup
 	$InitiatorsByIgroup = $lunInitiator | Select-Object Name, Initiators | where {$_.Name -eq $InitiatorGroupByPath.InitiatorGroup}
-	$fullSANreport.Initiators = $InitiatorsByIgroup.Name
-	Write-Host InitiatorsByIgroup.Name $InitiatorsByIgroup.Name 
+	
+	#InitiatorsByIgroup ist ein weiteres Feld mit mehren Zeilen - daraus muss eine Zeile werden.
+	$InitiatorsList = ""
+	foreach($entryInitiatorName in $InitiatorsByIgroup) {
+			$InitiatorsList += $entryInitiatorName.Initiators.InitiatorName
+	Write-Host $InitiatorsList
+	}
+	
+	$fullSANreport.Initiators = $InitiatorsList
 	$expSANData += $fullSANreport 
 	}
-##### End CIFS Quota auslesen
+
+#Write-Host Writing CSV  
+$expSANData | Export-Csv -NoTypeInformation -Delimiter ";"  $ExpLuns	
+##### End Lun size auslesen
 Write-Host End
