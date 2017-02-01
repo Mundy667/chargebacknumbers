@@ -12,12 +12,11 @@ cls
 $ExpFileQuota = "NTAPquota.csv"
 $ExpLuns = "NTAPluns.csv"
 
-#Cluster to connect-to - Set to "daenuscsmgt" at SAG
+#Cluster to connect-to - Set to "clustermgmt IP or DNS name" at cutomersite. 
 $Cluster="dot9sim"
 
-
 #Mit Cluster verbinden - Credential manuell
-#Connect-NcController $Cluster
+Connect-NcController $Cluster
 
 #####Begin CIFS Quota auslesen 
 #Alle Quotas auslesen - leider werden hier keine Qtrees mitgegeben
